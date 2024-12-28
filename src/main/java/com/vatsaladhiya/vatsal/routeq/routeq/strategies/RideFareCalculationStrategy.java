@@ -1,7 +1,10 @@
 package com.vatsaladhiya.vatsal.routeq.routeq.strategies;
 
-import com.vatsaladhiya.vatsal.routeq.routeq.dtos.RideRequestDTO;
+import com.vatsaladhiya.vatsal.routeq.routeq.entities.RideRequest;
 
 public interface RideFareCalculationStrategy {
-    double calculateFare(RideRequestDTO rideRequestDTO);
+
+    double RIDE_FARE_MULTIPLIER = 10;
+
+    double calculateFare(RideRequest rideRequest);
 }
