@@ -14,8 +14,7 @@ public class RideFareCalculationDefaultFareCalculationStrategy implements RideFa
 
     @Override
     public double calculateFare(RideRequest rideRequest) {
-        Double distance = distanceService.CalculateDistance(rideRequest.getPickupLocation(), rideRequest.getDropOffLocation());
-        // TODO: Call the 3rd party API
+        double distance = distanceService.CalculateDistance(rideRequest.getPickupLocation(), rideRequest.getDropOffLocation());
         return distance * RIDE_FARE_MULTIPLIER;
     }
 }

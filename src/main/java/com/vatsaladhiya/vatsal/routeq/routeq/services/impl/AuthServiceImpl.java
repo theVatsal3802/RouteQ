@@ -13,6 +13,7 @@ import com.vatsaladhiya.vatsal.routeq.routeq.services.RiderService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -30,6 +31,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public UserDTO signup(SignupDTO signupDTO) {
         User alreadyExists = userRepository.findByEmail(signupDTO.getEmail()).orElse(null);
         if (alreadyExists != null) {

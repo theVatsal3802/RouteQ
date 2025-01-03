@@ -3,6 +3,7 @@ package com.vatsaladhiya.vatsal.routeq.routeq.services;
 import com.vatsaladhiya.vatsal.routeq.routeq.dtos.RideRequestDTO;
 import com.vatsaladhiya.vatsal.routeq.routeq.entities.Driver;
 import com.vatsaladhiya.vatsal.routeq.routeq.entities.Ride;
+import com.vatsaladhiya.vatsal.routeq.routeq.entities.RideRequest;
 import com.vatsaladhiya.vatsal.routeq.routeq.entities.enums.RideStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -12,9 +13,9 @@ public interface RideService {
 
     void matchWithDrivers(RideRequestDTO rideRequestDTO);
 
-    Ride createNewRide(RideRequestDTO rideRequestDTO, Driver driver);
+    Ride createNewRide(RideRequest rideRequest, Driver driver);
 
-    Ride updateRideStatus(Long rideId, RideStatus rideStatus);
+    Ride updateRideStatus(Ride ride, RideStatus rideStatus);
 
     Page<Ride> getAllRidesOfRider(Long riderId, PageRequest pageRequest);
 
