@@ -40,6 +40,8 @@ public class RideEntity {
     @Enumerated(EnumType.STRING)
     private PaymentMethod paymentMethod;
 
+    private String otp;
+
     @Enumerated(EnumType.STRING)
     private RideStatus rideStatus;
 

@@ -3,10 +3,7 @@ package com.vatsaladhiya.routeq.routeq.entities;
 import com.vatsaladhiya.routeq.routeq.enums.PaymentMethod;
 import com.vatsaladhiya.routeq.routeq.enums.RideRequestStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.locationtech.jts.geom.Point;
 
@@ -39,4 +36,6 @@ public class RideRequestEntity {
 
     @Enumerated(EnumType.STRING)
     private RideRequestStatus rideRequestStatus;
+
+    private Double fare;
 }

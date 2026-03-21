@@ -1,13 +1,25 @@
 package com.vatsaladhiya.routeq.routeq.strategies.impl;
 
-import com.vatsaladhiya.routeq.routeq.dtos.RideRequestDto;
+import com.vatsaladhiya.routeq.routeq.entities.RideRequestEntity;
+import com.vatsaladhiya.routeq.routeq.services.DistanceService;
 import com.vatsaladhiya.routeq.routeq.strategies.RideFareCalculationStrategy;
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
+@Primary
 public class RideFareDefaultFareCalculationStrategy implements RideFareCalculationStrategy {
+
+    private final DistanceService distanceService;
+
     @Override
-    public Double calculateFare(RideRequestDto rideRequestDto) {
-        return 0.0;
+    public Double calculateFare(RideRequestEntity rideRequestEntity) {
+        Double distance = distanceService.calculateDistance(
+                rideRequestEntity.getPickupLocation(),
+                rideRequestEntity.getDropOffLocation()
+        );
+        return distance * RIDE_FARE_MULTIPLIER;
     }
 }
