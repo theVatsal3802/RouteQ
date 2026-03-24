@@ -2,14 +2,19 @@ package com.vatsaladhiya.routeq.routeq.dtos;
 
 import com.vatsaladhiya.routeq.routeq.enums.PaymentMethod;
 import com.vatsaladhiya.routeq.routeq.enums.RideStatus;
-import org.locationtech.jts.geom.Point;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
 
+@Data
+@AllArgsConstructor
+@RequiredArgsConstructor
 public class RideDto {
     private Long id;
-    private Point pickupLocation;
-    private Point dropOffLocation;
+    private PointDto pickupLocation;
+    private PointDto dropOffLocation;
     private LocalDateTime createdTime;
     private RiderDto rider;
     private DriverDto driver;

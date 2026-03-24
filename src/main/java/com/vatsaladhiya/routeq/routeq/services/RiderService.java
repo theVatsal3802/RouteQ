@@ -16,4 +16,5 @@ public interface RiderService {
     DriverDto rateDriver(Long rideId, Integer rating);
     RiderDto getProfile();
     List<RideDto> getAllRides();
+    RiderEntity getCurrentRider();
 }
