@@ -1,21 +1,25 @@
 package com.vatsaladhiya.routeq.routeq.services.impl;
 
 import com.vatsaladhiya.routeq.routeq.dtos.DriverDto;
-import com.vatsaladhiya.routeq.routeq.dtos.RideDto;
 import com.vatsaladhiya.routeq.routeq.dtos.RideRequestDto;
 import com.vatsaladhiya.routeq.routeq.dtos.RiderDto;
-import com.vatsaladhiya.routeq.routeq.entities.DriverEntity;
-import com.vatsaladhiya.routeq.routeq.entities.RideRequestEntity;
-import com.vatsaladhiya.routeq.routeq.entities.RiderEntity;
-import com.vatsaladhiya.routeq.routeq.entities.UserEntity;
+import com.vatsaladhiya.routeq.routeq.dtos.RiderRideDto;
+import com.vatsaladhiya.routeq.routeq.entities.*;
 import com.vatsaladhiya.routeq.routeq.enums.RideRequestStatus;
+import com.vatsaladhiya.routeq.routeq.enums.RideStatus;
+import com.vatsaladhiya.routeq.routeq.exceptions.IncorrectRiderException;
+import com.vatsaladhiya.routeq.routeq.exceptions.InvalidRequestException;
 import com.vatsaladhiya.routeq.routeq.exceptions.ResourceNotFoundException;
 import com.vatsaladhiya.routeq.routeq.repositories.RideRequestRepository;
 import com.vatsaladhiya.routeq.routeq.repositories.RiderRepository;
+import com.vatsaladhiya.routeq.routeq.services.DriverService;
+import com.vatsaladhiya.routeq.routeq.services.RideService;
 import com.vatsaladhiya.routeq.routeq.services.RiderService;
 import com.vatsaladhiya.routeq.routeq.strategies.RideStrategyManager;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +32,8 @@ public class RiderServiceImpl implements RiderService {
     private final ModelMapper modelMapper;
     private final RideStrategyManager rideStrategyManager;
     private final RiderRepository riderRepository;
+    private final RideService rideService;
+    private final DriverService driverService;
     private final RideRequestRepository rideRequestRepository;
 
     @Override
@@ -56,13 +62,25 @@ public class RiderServiceImpl implements RiderService {
         List<DriverEntity> drivers = rideStrategyManager
                 .driverMatchingStrategy(rider.getRating())
                 .findMatchingDrivers(rideRequestEntity);
-
+        // TODO: Send notification to drivers
         return modelMapper.map(savedRideRequest, RideRequestDto.class);
     }
 
     @Override
-    public RideDto cancelRide(Long rideId) {
-        return null;
+    @Transactional
+    public RiderRideDto cancelRide(Long rideId) {
+        RiderEntity rider = getCurrentRider();
+        RideEntity ride = rideService.getRideById(rideId);
+
+        if (!rider.equals(ride.getRider())) {
+            throw new IncorrectRiderException("Rider mismatch with ride's rider, cannot cancel.");
+        }
+        if (!ride.getRideStatus().equals(RideStatus.CONFIRMED)) {
+            throw new InvalidRequestException("Ride either ongoing, ended or cancelled, cannot cancel.");
+        }
+        RideEntity updatedRide = rideService.updateRideStatus(ride, RideStatus.CANCELLED);
+        driverService.updateDriverAvailability(ride.getDriver(), true);
+        return modelMapper.map(updatedRide, RiderRideDto.class);
     }
 
     @Override
@@ -72,12 +90,16 @@ public class RiderServiceImpl implements RiderService {
 
     @Override
     public RiderDto getProfile() {
-        return null;
+        RiderEntity rider = getCurrentRider();
+        return modelMapper.map(rider, RiderDto.class);
     }
 
     @Override
-    public List<RideDto> getAllRides() {
-        return List.of();
+    public Page<RiderRideDto> getAllRides(PageRequest pageRequest) {
+        RiderEntity rider = getCurrentRider();
+        return rideService.getAllRidesOfRider(rider, pageRequest).map(
+                ride -> modelMapper.map(ride, RiderRideDto.class)
+        );
     }
 
     @Override

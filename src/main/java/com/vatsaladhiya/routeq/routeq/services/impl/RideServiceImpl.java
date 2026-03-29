@@ -1,6 +1,5 @@
 package com.vatsaladhiya.routeq.routeq.services.impl;
 
-import com.vatsaladhiya.routeq.routeq.dtos.RideRequestDto;
 import com.vatsaladhiya.routeq.routeq.entities.DriverEntity;
 import com.vatsaladhiya.routeq.routeq.entities.RideEntity;
 import com.vatsaladhiya.routeq.routeq.entities.RideRequestEntity;
@@ -35,11 +34,6 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public void matchWithDrivers(RideRequestDto rideRequestDto) {
-
-    }
-
-    @Override
     public RideEntity createNewRide(RideRequestEntity rideRequestEntity, DriverEntity driver) {
         rideRequestEntity.setRideRequestStatus(RideRequestStatus.CONFIRMED);
         RideEntity rideEntity = modelMapper.map(rideRequestEntity, RideEntity.class);
@@ -58,13 +52,13 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public Page<RideEntity> getAllRidesOfRider(Long riderId, PageRequest pageRequest) {
-        return null;
+    public Page<RideEntity> getAllRidesOfRider(RiderEntity rider, PageRequest pageRequest) {
+        return rideRepository.findByRider(rider, pageRequest);
     }
 
     @Override
-    public Page<RideEntity> getAllRidesOfDriver(Long driverId, PageRequest pageRequest) {
-        return null;
+    public Page<RideEntity> getAllRidesOfDriver(DriverEntity driver, PageRequest pageRequest) {
+        return rideRepository.findByDriver(driver, pageRequest);
     }
 
     private String getOtp() {

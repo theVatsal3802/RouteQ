@@ -10,6 +10,7 @@ import com.vatsaladhiya.routeq.routeq.exceptions.RuntimeConflictException;
 import com.vatsaladhiya.routeq.routeq.repositories.UserRepository;
 import com.vatsaladhiya.routeq.routeq.services.AuthService;
 import com.vatsaladhiya.routeq.routeq.services.RiderService;
+import com.vatsaladhiya.routeq.routeq.services.WalletService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final RiderService riderService;
+    private final WalletService walletService;
 
     @Override
     public String login(String email, String password) {
@@ -42,7 +44,7 @@ public class AuthServiceImpl implements AuthService {
         UserEntity savedUser = userRepository.save(userEntity);
         // Create User related Entities (Rider and Wallet)
         RiderEntity rider = riderService.createRider(userEntity);
-        // TODO: Add Wallet related Stuff here.
+        walletService.createNewWallet(savedUser);
         return modelMapper.map(userEntity, UserDto.class);
     }
 

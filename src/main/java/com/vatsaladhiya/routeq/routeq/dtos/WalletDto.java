@@ -4,11 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RiderDto {
+public class WalletDto {
     private Long id;
+
     private UserDto user;
-    private Double rating;
+
+    private Double balance;
+
+    private List<WalletTransactionDto> transactions;
 }
