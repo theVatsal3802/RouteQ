@@ -2,6 +2,7 @@ package com.vatsaladhiya.routeq.routeq.advices;
 
 import com.vatsaladhiya.routeq.routeq.exceptions.ResourceNotFoundException;
 import com.vatsaladhiya.routeq.routeq.exceptions.RuntimeConflictException;
+import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -53,7 +54,7 @@ public class GlobalExceptionHandler {
                 .getBindingResult()
                 .getAllErrors()
                 .stream()
-                .map(error -> error.getDefaultMessage())
+                .map(DefaultMessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.toList());
 
         ApiError apiError = ApiError.builder()

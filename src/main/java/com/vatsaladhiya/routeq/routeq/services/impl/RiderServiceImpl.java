@@ -13,6 +13,7 @@ import com.vatsaladhiya.routeq.routeq.exceptions.ResourceNotFoundException;
 import com.vatsaladhiya.routeq.routeq.repositories.RideRequestRepository;
 import com.vatsaladhiya.routeq.routeq.repositories.RiderRepository;
 import com.vatsaladhiya.routeq.routeq.services.DriverService;
+import com.vatsaladhiya.routeq.routeq.services.RatingService;
 import com.vatsaladhiya.routeq.routeq.services.RideService;
 import com.vatsaladhiya.routeq.routeq.services.RiderService;
 import com.vatsaladhiya.routeq.routeq.strategies.RideStrategyManager;
@@ -35,6 +36,7 @@ public class RiderServiceImpl implements RiderService {
     private final RideService rideService;
     private final DriverService driverService;
     private final RideRequestRepository rideRequestRepository;
+    private final RatingService ratingService;
 
     @Override
     public RiderEntity createRider(UserEntity userEntity) {
@@ -85,7 +87,15 @@ public class RiderServiceImpl implements RiderService {
 
     @Override
     public DriverDto rateDriver(Long rideId, Integer rating) {
-        return null;
+        RideEntity ride = rideService.getRideById(rideId);
+        RiderEntity rider = getCurrentRider();
+        if (!rider.equals(ride.getRider())) {
+            throw new IncorrectRiderException("Current rider not same as booking rider");
+        }
+        if (!ride.getRideStatus().equals(RideStatus.COMPLETED)) {
+            throw new InvalidRequestException("Ride Status is not COMPLETED, status: " + ride.getRideStatus());
+        }
+        return modelMapper.map(ratingService.rateDriver(ride, rating), DriverDto.class);
     }
 
     @Override

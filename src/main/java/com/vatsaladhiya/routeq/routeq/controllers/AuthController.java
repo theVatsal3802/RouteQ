@@ -1,14 +1,14 @@
 package com.vatsaladhiya.routeq.routeq.controllers;
 
+import com.vatsaladhiya.routeq.routeq.dtos.DriverDto;
+import com.vatsaladhiya.routeq.routeq.dtos.OnboardDriverDto;
 import com.vatsaladhiya.routeq.routeq.dtos.SignupDto;
 import com.vatsaladhiya.routeq.routeq.dtos.UserDto;
 import com.vatsaladhiya.routeq.routeq.services.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(path = "/auth")
@@ -18,6 +18,11 @@ public class AuthController {
 
     @PostMapping(path = "/signup")
     public ResponseEntity<UserDto> signUp(@RequestBody SignupDto signupDto) {
-        return ResponseEntity.ok(authService.signup(signupDto));
+        return new ResponseEntity<>(authService.signup(signupDto), HttpStatus.CREATED);
+    }
+
+    @PostMapping(path = "/onboardNewDriver/{userId}")
+    public ResponseEntity<DriverDto> onboardNewDriver(@PathVariable Long userId, @RequestBody OnboardDriverDto onboardDriverDto) {
+        return new ResponseEntity<>(authService.onboardNewDriver(userId, onboardDriverDto.getVehicleId()), HttpStatus.CREATED);
     }
 }

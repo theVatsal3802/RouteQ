@@ -10,10 +10,7 @@ import com.vatsaladhiya.routeq.routeq.enums.RideRequestStatus;
 import com.vatsaladhiya.routeq.routeq.enums.RideStatus;
 import com.vatsaladhiya.routeq.routeq.exceptions.*;
 import com.vatsaladhiya.routeq.routeq.repositories.DriverRepository;
-import com.vatsaladhiya.routeq.routeq.services.DriverService;
-import com.vatsaladhiya.routeq.routeq.services.PaymentService;
-import com.vatsaladhiya.routeq.routeq.services.RideRequestService;
-import com.vatsaladhiya.routeq.routeq.services.RideService;
+import com.vatsaladhiya.routeq.routeq.services.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -32,6 +29,7 @@ public class DriverServiceImpl implements DriverService {
     private final DriverRepository driverRepository;
     private final ModelMapper modelMapper;
     private final PaymentService paymentService;
+    private final RatingService ratingService;
 
     @Override
     @Transactional
@@ -70,6 +68,7 @@ public class DriverServiceImpl implements DriverService {
         RideEntity updatedRide = rideService.updateRideStatus(ride, RideStatus.ONGOING);
 
         paymentService.createNewPayment(updatedRide);
+        ratingService.createNewRating(updatedRide);
         return modelMapper.map(updatedRide, DriverRideDto.class);
     }
 
@@ -93,7 +92,15 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public RiderDto rateRider(Long rideId, Integer rating) {
-        return null;
+        RideEntity ride = rideService.getRideById(rideId);
+        DriverEntity driver = getCurrentDriver();
+        if (!driver.equals(ride.getDriver())) {
+            throw new IncorrectDriverException("Current driver not same as assigned driver");
+        }
+        if (!ride.getRideStatus().equals(RideStatus.COMPLETED)) {
+            throw new InvalidRequestException("Ride Status is not COMPLETED, status: " + ride.getRideStatus());
+        }
+        return modelMapper.map(ratingService.rateRider(ride, rating), RiderDto.class);
     }
 
     @Override
@@ -136,6 +143,11 @@ public class DriverServiceImpl implements DriverService {
     @Override
     public DriverEntity updateDriverAvailability(DriverEntity driver, boolean isAvailable) {
         driver.setAvailable(isAvailable);
+        return driverRepository.save(driver);
+    }
+
+    @Override
+    public DriverEntity createNewDriver(DriverEntity driver) {
         return driverRepository.save(driver);
     }
 }
