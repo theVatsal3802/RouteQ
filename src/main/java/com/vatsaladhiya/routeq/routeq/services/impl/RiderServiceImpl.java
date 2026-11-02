@@ -10,6 +10,7 @@ import com.vatsaladhiya.routeq.routeq.enums.RideStatus;
 import com.vatsaladhiya.routeq.routeq.exceptions.IncorrectRiderException;
 import com.vatsaladhiya.routeq.routeq.exceptions.InvalidRequestException;
 import com.vatsaladhiya.routeq.routeq.exceptions.ResourceNotFoundException;
+import com.vatsaladhiya.routeq.routeq.exceptions.UnauthenticatedUserException;
 import com.vatsaladhiya.routeq.routeq.repositories.RideRequestRepository;
 import com.vatsaladhiya.routeq.routeq.repositories.RiderRepository;
 import com.vatsaladhiya.routeq.routeq.services.DriverService;
@@ -21,6 +22,8 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -114,8 +117,12 @@ public class RiderServiceImpl implements RiderService {
 
     @Override
     public RiderEntity getCurrentRider() {
-        return riderRepository.findById(1L).orElseThrow(() ->
-                new ResourceNotFoundException("Rider not found with id: 1")
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (user == null) {
+            throw new UnauthenticatedUserException("User is not authenticated");
+        }
+        return riderRepository.findByUser(user).orElseThrow(() ->
+                new ResourceNotFoundException("Rider not found for user: " + user.toString())
         );
     }
 }

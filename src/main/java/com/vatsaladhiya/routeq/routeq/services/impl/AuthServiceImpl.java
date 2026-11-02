@@ -1,6 +1,7 @@
 package com.vatsaladhiya.routeq.routeq.services.impl;
 
 import com.vatsaladhiya.routeq.routeq.dtos.DriverDto;
+import com.vatsaladhiya.routeq.routeq.dtos.LoginResponseDto;
 import com.vatsaladhiya.routeq.routeq.dtos.SignupDto;
 import com.vatsaladhiya.routeq.routeq.dtos.UserDto;
 import com.vatsaladhiya.routeq.routeq.entities.DriverEntity;
@@ -11,10 +12,7 @@ import com.vatsaladhiya.routeq.routeq.exceptions.ResourceNotFoundException;
 import com.vatsaladhiya.routeq.routeq.exceptions.RuntimeConflictException;
 import com.vatsaladhiya.routeq.routeq.filters.JWTService;
 import com.vatsaladhiya.routeq.routeq.repositories.UserRepository;
-import com.vatsaladhiya.routeq.routeq.services.AuthService;
-import com.vatsaladhiya.routeq.routeq.services.DriverService;
-import com.vatsaladhiya.routeq.routeq.services.RiderService;
-import com.vatsaladhiya.routeq.routeq.services.WalletService;
+import com.vatsaladhiya.routeq.routeq.services.*;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -87,5 +85,13 @@ public class AuthServiceImpl implements AuthService {
         user.getRoles().add(Role.DRIVER);
         userRepository.save(user);
         return modelMapper.map(savedDriver, DriverDto.class);
+    }
+
+    @Override
+    @Transactional
+    public String refreshToken(String refreshToken) {
+        Long userId = jwtService.getUserIdFromToken(refreshToken);
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        return jwtService.generateAccessToken(user);
     }
 }
